@@ -36,14 +36,13 @@ function [orb_elements, timeUTC, timeJulian, ballistic_coeff] = TLE_parse(file)
         [E] = M2E(M,e);
         
         % Compute true anomaly
-        [theta] = E2theta(deg2rad(E),e);
+        [theta] = E2theta(E,e);
 
         % Six orbital elements 
         counter = counter+1;
         
         % Store orbital elements
         orb_elements(counter,:) = [a e inc RAAN w rad2deg(theta)];
-        time(counter) = epoch;
         ballistic_coeff(counter) = Bc;
 
         % Parse one TLE

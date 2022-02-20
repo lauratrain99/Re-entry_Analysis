@@ -1,4 +1,4 @@
-function [r] = ellipse_coords(orb_elements)
+function [r, v] = ellipse_coords(orb_elements)
 % ellipse_coords obtains the x,y and z coordinates of an ellipse in the 3D
 % space
 % INPUTS:
@@ -27,7 +27,7 @@ function [r] = ellipse_coords(orb_elements)
     
     % transform coe into position vector
     for i = 1:length(orb_elements)
-        r(i,:) = coe2rv(mu, a(i), e(i), Omega(i), inc(i), omega(i), theta(i));
+        [r(i,:), v(i,:)] = coe2rv(mu, a(i), e(i), Omega(i), inc(i), omega(i), theta(i));
     end
     
     

@@ -1,0 +1,21 @@
+clear;clc;
+
+addpath TLEs/
+
+file = 'C.txt';
+
+
+[orb_elements, timeUTC, timeJulian, ballistic_coeff] = TLE_parse(file);
+
+r = ellipse_coords(orb_elements);
+
+h = orb_elements(:,1) - 6378;
+
+figure(1)
+plot(timeJulian, h)
+
+figure(2)
+earth_sphere('km')
+hold on
+plot3(r(:,1),r(:,2),r(:,3),'r*')
+hold off

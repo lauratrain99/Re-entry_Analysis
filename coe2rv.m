@@ -37,7 +37,6 @@ function [r, v] = coe2rv(mu, a, e, Omega, inc, omega, theta)
     j3 = -sin(omega)*i2 + cos(omega)*j2;
     k3 = k2;
     
-    
     % Cylindrical vector basis in the plane of motion
     er = cos(theta)*i3 + sin(theta)*j3;
     etheta = -sin(theta)*i3 + cos(theta)*j3;
