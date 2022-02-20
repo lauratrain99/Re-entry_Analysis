@@ -1,5 +1,6 @@
-% orb_elements = TLE_parse('Tianhe.txt')
 clear;clc;
+
+addpath TLEs/
 
 file = 'CZ5B_2021.txt';
 
