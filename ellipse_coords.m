@@ -1,4 +1,4 @@
-function [r] = ellipse_coords(mu, a, e, Omega, inc, omega)
+function [r] = ellipse_coords(orb_elements)
 % ellipse_coords obtains the x,y and z coordinates of an ellipse in the 3D
 % space
 % INPUTS:
@@ -12,15 +12,22 @@ function [r] = ellipse_coords(mu, a, e, Omega, inc, omega)
 %            r, 360x3 vector of x,y and z coordinates
 %
 %%
-    % set a vector of all possible true anomalies
-    theta = linspace(0, 2*pi, 360);
+    
+    mu = 398600;                                % [km^3/s^2]
     
     % preallocate position vector
-    r = zeros(3,length(theta));
+    r = zeros(length(orb_elements),3);
+    
+    a = orb_elements(:,1);
+    e = orb_elements(:,2);
+    Omega = deg2rad(orb_elements(:,4));
+    inc = deg2rad(orb_elements(:,3));
+    omega = deg2rad(orb_elements(:,5));
+    theta = deg2rad(orb_elements(:,6));
     
     % transform coe into position vector
-    for i = 1:length(theta)
-        r(:,i) = coe2rv(mu, a, e, Omega, inc, omega, theta(i));
+    for i = 1:length(orb_elements)
+        r(i,:) = coe2rv(mu, a(i), e(i), Omega(i), inc(i), omega(i), theta(i));
     end
     
     

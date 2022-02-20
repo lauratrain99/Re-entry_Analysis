@@ -1,4 +1,4 @@
-function [orb_elements, time, ballistic_coeff] = TLE_parse(file)
+function [orb_elements, timeUTC, timeJulian, ballistic_coeff] = TLE_parse(file)
     
     % Open the file in read mode
     fid = fopen(file, 'rb');
@@ -7,7 +7,7 @@ function [orb_elements, time, ballistic_coeff] = TLE_parse(file)
     counter = 0;
     
     % Parse one TLE
-    L1 = fscanf(fid,'%d%6d%*c%5d%*3c%*2f%f%f%5d%*c%*d%5d%*c%*d%d%5d',[1,9]);
+    L1 = fscanf(fid,'%d%6d%*c%5d%*3c%f%f%5d%*c%*d%5d%*c%*d%d%5d',[1,9]);
     L2 = fscanf(fid,'%d%6d%f%f%f%f%f%f%f',[1,9]);
     
     % Orbital constant
@@ -20,7 +20,7 @@ function [orb_elements, time, ballistic_coeff] = TLE_parse(file)
     while (~isempty(L2))
         
         % Parse TLE elements
-        epoch = L1(1,4)*24*3600;                % Epoch Date and Julian Date Fraction
+        epoch = L1(1,4);                        % Epoch Date and Julian Date Fraction
         Bc    = L1(1,5);                        % Ballistic Coefficient
         inc   = L2(1,3);                        % Inclination [deg]
         RAAN  = L2(1,4);                        % Right Ascension of the Ascending Node [deg]
@@ -47,8 +47,10 @@ function [orb_elements, time, ballistic_coeff] = TLE_parse(file)
         ballistic_coeff(counter) = Bc;
 
         % Parse one TLE
-        L1 = fscanf(fid,'%d%6d%*c%5d%*3c%*2f%f%f%5d%*c%*d%5d%*c%*d%d%5d',[1,9]);
+        L1 = fscanf(fid,'%d%6d%*c%5d%*3c%f%f%5d%*c%*d%5d%*c%*d%d%5d',[1,9]);
         L2 = fscanf(fid,'%d%6d%f%f%f%f%f%f%f',[1,9]);
+        
+        [timeUTC(counter), timeJulian(counter)] = utc_julian(epoch);
 
     end
     
