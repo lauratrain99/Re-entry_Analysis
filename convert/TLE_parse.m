@@ -1,4 +1,4 @@
-function [orb_elements, timeUTC, timeJulian, ballistic_coeff] = TLE_parse(file)
+function [TLE] = TLE_parse(file)
     
     % Open the file in read mode
     fid = fopen(file, 'rb');
@@ -14,7 +14,7 @@ function [orb_elements, timeUTC, timeJulian, ballistic_coeff] = TLE_parse(file)
     mu = 398600;                                % [km^3/s^2]
     
     % Initialize orbital elements matrix
-    orb_elements = [0, 0, 0, 0, 0, 0];
+    TLE.orb_elements = [0, 0, 0, 0, 0, 0];
     
     % stay in the loop while there are TLEs to read
     while (~isempty(L2))
@@ -42,14 +42,14 @@ function [orb_elements, timeUTC, timeJulian, ballistic_coeff] = TLE_parse(file)
         counter = counter+1;
         
         % Store orbital elements
-        orb_elements(counter,:) = [a e inc RAAN w rad2deg(theta)];
-        ballistic_coeff(counter) = Bc;
+        TLE.orb_elements(counter,:) = [a e inc RAAN w rad2deg(theta)];
+        TLE.ballistic_coeff(counter) = Bc;
 
         % Parse one TLE
         L1 = fscanf(fid,'%d%6d%*c%5d%*3c%f%f%5d%*c%*d%5d%*c%*d%d%5d',[1,9]);
         L2 = fscanf(fid,'%d%6d%f%f%f%f%f%f%f',[1,9]);
         
-        [timeUTC(counter), timeJulian(counter)] = utc_julian(epoch);
+        [TLE.timeUTC(counter), TLE.timeJulian(counter)] = utc_julian(epoch);
 
     end
     

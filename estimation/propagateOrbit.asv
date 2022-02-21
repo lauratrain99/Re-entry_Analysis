@@ -1,0 +1,23 @@
+function [r_prop, v_prop, lat, lon, alt, utc_prop] = propagateOrbit(init_integ, final_integ, timeJulian, Bc, r_TLE, v_TLE)
+
+    % Initial and final integration times in seconds
+    t0 = TLE.timeJulian(init_integ)*24*3600;
+    tf = TLE.timeJulian(final_integ)*24*3600;
+
+    % Initial pos and vel
+    r0 = TLE.r_ECI(init_integ,:)';
+    v0 = TLE.v_TLE(init_integ,:)';
+    iniState = [r0 v0];
+
+    % Propagate the orbit
+    options = odeset('RelTol',1e-8,'AbsTol',1e-8); 
+    
+    [t,y] = ode45(@dragDyn,linspace(t0, tf,1000), iniState, options, TLE.Bc);  
+
+    r_prop = y(:,1:3);
+    v_prop = y(:,4:6);
+
+    % Compute ground trajectory
+    [utc_prop] = integ_t2utc(t);
+    [lat, lon, alt] = ground_trajectory(r_prop, utc_prop);
+end
