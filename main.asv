@@ -64,10 +64,9 @@ TLE.Bc = 0.01;
 figure('Position',[300,300,1000,500]);
 opts_earth1.Color = [140,21,21]/255;
 opts_earth1.LineWidth = 2.5;
-% opts_earth1.LineStyle = '-.';
 
 opts2 = opts_earth1;
-opts2.LineStyle = ':';
+opts2.LineStyle = '*';
 
 % ground_track(propagate.lat,propagate.lon,opts_earth1,'Earth');
 % hold on
