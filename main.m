@@ -64,15 +64,20 @@ TLE.Bc = 0.01;
 figure('Position',[300,300,1000,500]);
 opts_earth1.Color = [140,21,21]/255;
 opts_earth1.LineWidth = 2.5;
-% opts_earth1.LineStyle = '-.';
+opts_earth1.LineStyle = '-';
 
-opts2 = opts_earth1;
-opts2.LineStyle = ':';
+ground_track(propagate.lat,propagate.lon,opts_earth1,'Earth');
+hold on
+plot(TLE.lon(init_integ),TLE.lat(init_integ),'s','MarkerSize',10,...
+    'MarkerEdgeColor','blue',...
+    'MarkerFaceColor',[0.3010, 0.7450, 0.9330]);
+hold on
+plot(TLE.lon(final_integ),TLE.lat(final_integ),'s','MarkerSize',10,...
+    'MarkerEdgeColor','red',...
+    'MarkerFaceColor',[1 .6 .6]);
+hold off
+% legend('Propagation','Initial TLE','Final TLE')
 
-% ground_track(propagate.lat,propagate.lon,opts_earth1,'Earth');
-% hold on
-ground_track(TLE.lat(init_integ),TLE.lon(init_integ),opts2,'Earth');
-% hold off
 %% See integration results
 
 propagate.r_norm = sqrt(propagate.r_ECI(:,1).^2 + propagate.r_ECI(:,2).^2 + propagate.r_ECI(:,3).^2);
