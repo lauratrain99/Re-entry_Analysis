@@ -9,6 +9,11 @@ addpath convert/
 addpath estimation/
 addpath ground_track/
 
+set(groot, 'defaultTextInterpreter',            'latex');
+set(groot, 'defaultAxesTickLabelInterpreter',   'latex'); 
+set(groot, 'defaultLegendInterpreter',          'latex');
+set(groot, 'defaultLegendLocation',             'northeast');
+
 %%
 file = 'CZ5B_2021.txt';
 
@@ -61,12 +66,12 @@ TLE.Bc = 0.01;
 
 %%
 % Plot ground trajectory
-figure('Position',[300,300,1000,500]);
-opts_earth1.Color = [140,21,21]/255;
-opts_earth1.LineWidth = 2.5;
-opts_earth1.LineStyle = '-';
+figure()
+opts.Color = [140,21,21]/255;
+opts.LineWidth = 2.5;
+opts.LineStyle = '-';
 
-ground_track(propagate.lat,propagate.lon,opts_earth1,'Earth');
+ground_track(propagate.lat,propagate.lon,opts,'Earth');
 hold on
 plot(TLE.lon(init_integ),TLE.lat(init_integ),'s','MarkerSize',10,...
     'MarkerEdgeColor','blue',...
@@ -76,7 +81,7 @@ plot(TLE.lon(final_integ),TLE.lat(final_integ),'s','MarkerSize',10,...
     'MarkerEdgeColor','red',...
     'MarkerFaceColor',[1 .6 .6]);
 hold off
-% legend('Propagation','Initial TLE','Final TLE')
+legend('Propagation','Initial TLE','Final TLE')
 
 %% See integration results
 
