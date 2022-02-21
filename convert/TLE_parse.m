@@ -43,7 +43,7 @@ function [TLE] = TLE_parse(file)
         
         % Store orbital elements
         TLE.orb_elements(counter,:) = [a e inc RAAN w rad2deg(theta)];
-        TLE.ballistic_coeff(counter) = Bc;
+        TLE.Bc(counter) = Bc;
 
         % Parse one TLE
         L1 = fscanf(fid,'%d%6d%*c%5d%*3c%f%f%5d%*c%*d%5d%*c%*d%d%5d',[1,9]);

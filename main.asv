@@ -57,16 +57,16 @@ title("True anomaly [deg]")
 %% Propagate from initial state
 
 % TLE taken as initial and final conditions to propagate
-init_integ1 = 4;
-final_integ1 = 5;
+init_integ1 = 1;
+final_integ1 = 32;
 
-init_integ2 = 5;
-final_integ2 = 6;
+% init_integ2 = 2;
+% final_integ2 = 3;
 
 TLE.Bc = 0.025;
 
 [propagate] = propagateOrbit(init_integ1, final_integ1, TLE);
-[propagate2] = propagateOrbit(init_integ2, final_integ2, TLE);
+% [propagate2] = propagateOrbit(init_integ2, final_integ2, TLE);
 
 [TLE.lat, TLE.lon, TLE.alt] = ground_trajectory(TLE.r_ECI, TLE.timeUTC);
 
@@ -92,28 +92,21 @@ legend('Propagation','Initial TLE','Final TLE')
 %% See integration results
 
 propagate.r_norm = sqrt(propagate.r_ECI(:,1).^2 + propagate.r_ECI(:,2).^2 + propagate.r_ECI(:,3).^2);
-propagate2.r_norm = sqrt(propagate2.r_ECI(:,1).^2 + propagate2.r_ECI(:,2).^2 + propagate2.r_ECI(:,3).^2);
+% propagate2.r_norm = sqrt(propagate2.r_ECI(:,1).^2 + propagate2.r_ECI(:,2).^2 + propagate2.r_ECI(:,3).^2);
 % v_norm = sqrt(v(:,1).^2 + v(:,2).^2 + v(:,3).^2);
 TLE.r_norm = sqrt(TLE.r_ECI(:,1).^2 + TLE.r_ECI(:,2).^2 + TLE.r_ECI(:,3).^2);
 
 figure()
+% plot(TLE.timeJulian(init_integ1:final_integ1)*24*3600,TLE.r_norm(init_integ1:final_integ1),'b*')
 plot(TLE.timeUTC(init_integ1:final_integ1),TLE.r_norm(init_integ1:final_integ1),'b*')
+title("$||r_{norm}$ vs time")
+hold on
+% plot(TLE.timeJulian(init_integ2:final_integ2)*24*3600,TLE.r_norm(init_integ2:final_integ2),'b*')
+% hold on
+% plot(propagate.t,propagate.r_norm,'r')
 plot(propagate.timeUTC,propagate.r_norm,'r')
-title("$||r||$ vs UTC time", 'FontSize', 14)
-ylabel("$||r||$ [km]",'FontSize',14)
-hold on
-plot(TLE.timeUTC(init_integ2:final_integ2),TLE.r_norm(init_integ2:final_integ2),'s','MarkerSize',10,...
-    'MarkerEdgeColor','blue',...
-    'MarkerFaceColor',[0.3010, 0.7450, 0.9330]);
-hold on
-plot(propagate.timeUTC,propagate.r_norm,'r')
-
-plot(TLE.timeUTC(init_integ1:final_integ1),TLE.r_norm(init_integ1:final_integ1),'s','MarkerSize',10,...
-    'MarkerEdgeColor','blue',...
-    'MarkerFaceColor',[0.3010, 0.7450, 0.9330]);
-hold on
-plot(propagate2.timeUTC,propagate2.r_norm,'b')
-legend("Propagation","TLEs",'FontSize',12)
+% hold on
+% plot(propagate2.t,propagate2.r_norm,'b')
 hold off
 
 %%

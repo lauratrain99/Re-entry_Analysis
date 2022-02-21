@@ -8,7 +8,9 @@ function der = dragDyn(t, x, Bc)
     
     h = norm(r) - Re;
     
-    rho  = (6*1e-14)*exp( - ( h - 175000 ) / 35500 ); 
+%     rho  = (6*1e-13)*exp( - ( h - 200000 ) / 30000 );
+    rho  = (6*1e-13)*exp( - ( h - 150000 ) / 35500 ); 
+%     rho  = (6*1e-14)*exp( - ( h - 18000 ) / 4000 ); 
     
     
     vRel = (v - cross(wEarth',r));
