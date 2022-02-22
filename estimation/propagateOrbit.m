@@ -12,7 +12,7 @@ function [propagate] = propagateOrbit(init_integ, final_integ, TLE)
     % Propagate the orbit
     options = odeset('RelTol',1e-8,'AbsTol',1e-8); 
     
-    [t,y] = ode45(@dragDyn,linspace(t0, tf,1000), iniState, options, TLE.Bc);  
+    [t,y] = ode45(@dragDyn,linspace(t0, tf,1000), iniState, options, TLE);  
     
     propagate.t = t;
     propagate.r_ECI = y(:,1:3);

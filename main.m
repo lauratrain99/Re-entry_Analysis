@@ -1,7 +1,7 @@
 % Authors: Laura Train & Juan María Herrera
 % Analysis of CZ5B re-entry
 
-%%
+%% 
 clear;clc;close all;
 
 addpath TLEs/
@@ -14,7 +14,7 @@ set(groot, 'defaultAxesTickLabelInterpreter',   'latex');
 set(groot, 'defaultLegendInterpreter',          'latex');
 set(groot, 'defaultLegendLocation',             'northeast');
 
-%%
+%% Parse TLEs and get orbital elements
 file = 'CZ5B_2021.txt';
 
 [TLE] = TLE_parse(file);
@@ -31,46 +31,114 @@ TLE.theta = TLE.orb_elements(:,6);
 % plot orbital elements
 figure()
 subplot(2,3,1)
-plot(TLE.timeJulian, TLE.a)
+plot(TLE.timeUTC, TLE.a)
 title("Semi-major axis [km]")
 
 subplot(2,3,2)
-plot(TLE.timeJulian, TLE.e)
+plot(TLE.timeUTC, TLE.e)
 title("Eccentricity")
 
 subplot(2,3,3)
-plot(TLE.timeJulian, TLE.inc)
+plot(TLE.timeUTC, TLE.inc)
 title("Inclination [deg]")
 
 subplot(2,3,4)
-plot(TLE.timeJulian, TLE.raan)
+plot(TLE.timeUTC, TLE.raan)
 title("RAAN [km]")
 
 subplot(2,3,5)
-plot(TLE.timeJulian, TLE.w)
+plot(TLE.timeUTC, TLE.w)
 title("Arg. of perigee [deg]")
 
 subplot(2,3,6)
-plot(TLE.timeJulian, TLE.theta)
+plot(TLE.timeUTC, TLE.theta)
 title("True anomaly [deg]")
 
 %% Propagate from initial state
 
 % TLE taken as initial and final conditions to propagate
-init_integ1 = 4;
-final_integ1 = 5;
+[propagate] = propagateOrbit(2, 3, TLE);
+totalPropagate.r_ECI = propagate.r_ECI;
+totalPropagate.v_ECI = propagate.v_ECI;
+totalPropagate.timeUTC = propagate.timeUTC;
 
-init_integ2 = 5;
-final_integ2 = 6;
+% Integrate the full domain
+for i = 3:31
+    [propagate] = propagateOrbit(i, i+1, TLE);
+    totalPropagate.r_ECI = [totalPropagate.r_ECI; propagate.r_ECI];
+    totalPropagate.v_ECI = [totalPropagate.v_ECI; propagate.v_ECI];
+    totalPropagate.timeUTC = [totalPropagate.timeUTC; propagate.timeUTC];
+end
 
-TLE.Bc = 0.025;
-
-[propagate] = propagateOrbit(init_integ1, final_integ1, TLE);
-[propagate2] = propagateOrbit(init_integ2, final_integ2, TLE);
-
+% Get ground trajectory of TLEs
 [TLE.lat, TLE.lon, TLE.alt] = ground_trajectory(TLE.r_ECI, TLE.timeUTC);
 
-%%
+%% Full integration
+
+% Propagate radius of the orbit
+totalPropagate.r_norm = sqrt(totalPropagate.r_ECI(:,1).^2 + ... 
+                        totalPropagate.r_ECI(:,2).^2 + totalPropagate.r_ECI(:,3).^2);
+
+% TLE radius of the orbit 
+TLE.r_norm = sqrt(TLE.r_ECI(2:end,1).^2 + TLE.r_ECI(2:end,2).^2 + TLE.r_ECI(2:end,3).^2);
+
+% Plot overall orbit propagation and TLEs
+figure()
+plot(totalPropagate.timeUTC,totalPropagate.r_norm,'r')
+title("$||r||$ vs UTC time", 'FontSize', 14)
+ylabel("$||r||$ [km]",'FontSize',14)
+hold on
+plot(TLE.timeUTC(2:end),TLE.r_norm,'s','MarkerSize',10,...
+    'MarkerEdgeColor','blue',...
+    'MarkerFaceColor',[0.3010, 0.7450, 0.9330]);
+legend("Propagation","TLEs",'FontSize',12)
+hold off
+
+%% Integrate one step
+
+% Choose integration points
+init_integ1 = 2;
+final_integ1 = 3;
+
+init_integ2 = 3;
+final_integ2 = 4;
+
+% Integrate orbits
+[propagate1] = propagateOrbit(init_integ1, final_integ1, TLE);
+[propagate2] = propagateOrbit(init_integ2, final_integ2, TLE);
+
+% Radius of the orbit
+propagate1.r_norm = sqrt(propagate1.r_ECI(:,1).^2 + propagate1.r_ECI(:,2).^2 + propagate1.r_ECI(:,3).^2);
+propagate2.r_norm = sqrt(propagate2.r_ECI(:,1).^2 + propagate2.r_ECI(:,2).^2 + propagate2.r_ECI(:,3).^2);
+
+% Radius of both orbits
+figure()
+plot(propagate1.timeUTC,propagate1.r_norm,'r')
+hold on
+plot(TLE.timeUTC(init_integ1:final_integ1),TLE.r_norm(init_integ1:final_integ1),'s','MarkerSize',10,...
+    'MarkerEdgeColor','red',...
+    'MarkerFaceColor',[0.3010, 0.7450, 0.9330]);
+hold on
+plot(propagate2.timeUTC,propagate2.r_norm,'b')
+hold on
+plot(TLE.timeUTC(init_integ2:final_integ2),TLE.r_norm(init_integ2:final_integ2),'s','MarkerSize',10,...
+    'MarkerEdgeColor','blue',...
+    'MarkerFaceColor',[0, 0, 1]);
+legend("Propagation","TLEs",'FontSize',12)
+hold off
+title("$||r||$ vs UTC time", 'FontSize', 14)
+ylabel("$||r||$ [km]",'FontSize',14)
+
+% Plot Earth full orbit
+figure()
+earth_sphere('km')
+hold on
+plot3(TLE.r_ECI(init_integ1:final_integ1,1),TLE.r_ECI(init_integ1:final_integ1,2),TLE.r_ECI(init_integ1:final_integ1,3),'r*')
+hold on
+plot3(propagate1.r_ECI(:,1),propagate1.r_ECI(:,2),propagate1.r_ECI(:,3),'k')
+hold off
+
+%% Ground track
 % Plot ground trajectory
 figure()
 opts.Color = [140,21,21]/255;
@@ -83,47 +151,11 @@ plot(TLE.lon(init_integ1),TLE.lat(init_integ1),'s','MarkerSize',10,...
     'MarkerEdgeColor','blue',...
     'MarkerFaceColor',[0.3010, 0.7450, 0.9330]);
 hold on
-plot(TLE.lon(final_integ1),TLE.lat(final_integ1),'s','MarkerSize',10,...
+plot(TLE.lon(final_integ2),TLE.lat(final_integ2),'s','MarkerSize',10,...
     'MarkerEdgeColor','red',...
     'MarkerFaceColor',[1 .6 .6]);
 hold off
 legend('Propagation','Initial TLE','Final TLE')
-
-%% See integration results
-
-propagate.r_norm = sqrt(propagate.r_ECI(:,1).^2 + propagate.r_ECI(:,2).^2 + propagate.r_ECI(:,3).^2);
-propagate2.r_norm = sqrt(propagate2.r_ECI(:,1).^2 + propagate2.r_ECI(:,2).^2 + propagate2.r_ECI(:,3).^2);
-% v_norm = sqrt(v(:,1).^2 + v(:,2).^2 + v(:,3).^2);
-TLE.r_norm = sqrt(TLE.r_ECI(:,1).^2 + TLE.r_ECI(:,2).^2 + TLE.r_ECI(:,3).^2);
-
-figure()
-plot(TLE.timeUTC(init_integ1:final_integ1),TLE.r_norm(init_integ1:final_integ1),'b*')
-plot(propagate.timeUTC,propagate.r_norm,'r')
-title("$||r||$ vs UTC time", 'FontSize', 14)
-ylabel("$||r||$ [km]",'FontSize',14)
-hold on
-plot(TLE.timeUTC(init_integ2:final_integ2),TLE.r_norm(init_integ2:final_integ2),'s','MarkerSize',10,...
-    'MarkerEdgeColor','blue',...
-    'MarkerFaceColor',[0.3010, 0.7450, 0.9330]);
-hold on
-plot(propagate.timeUTC,propagate.r_norm,'r')
-
-plot(TLE.timeUTC(init_integ1:final_integ1),TLE.r_norm(init_integ1:final_integ1),'s','MarkerSize',10,...
-    'MarkerEdgeColor','blue',...
-    'MarkerFaceColor',[0.3010, 0.7450, 0.9330]);
-hold on
-plot(propagate2.timeUTC,propagate2.r_norm,'b')
-legend("Propagation","TLEs",'FontSize',12)
-hold off
-
-%%
-figure()
-earth_sphere('km')
-hold on
-plot3(TLE.r_ECI(init_integ1:final_integ1,1),TLE.r_ECI(init_integ1:final_integ1,2),TLE.r_ECI(init_integ1:final_integ1,3),'r*')
-hold on
-plot3(propagate.r_ECI(:,1),propagate.r_ECI(:,2),propagate.r_ECI(:,3),'k')
-hold off
 
 %% Montecarlo Propagation
 
