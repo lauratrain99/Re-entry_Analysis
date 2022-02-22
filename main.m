@@ -125,4 +125,33 @@ hold on
 plot3(propagate.r_ECI(:,1),propagate.r_ECI(:,2),propagate.r_ECI(:,3),'k')
 hold off
 
+%% Montecarlo Propagation
+
+N = 3; %Number of tests
+sigma_r = 1; %std of r
+sigma_v = 1; %std of v
+TLE_monte.timeJulian = TLE.timeJulian(final_integ):0.1:TLE.timeJulian(final_integ)+1000;
+TLE_monte.Bc = TLE.Bc;
+
+for i = 1:N
+    rx = normrnd(TLE.r_ECI(length(TLE.r_ECI),1),sigma_r,1);
+    ry = normrnd(TLE.r_ECI(length(TLE.r_ECI),2),sigma_r,1);
+    rz = normrnd(TLE.r_ECI(length(TLE.r_ECI),3),sigma_r,1);
+    TLE_monte.r_ECI = [rx, ry, rz];
+
+    vx = normrnd(TLE.v_ECI(length(TLE.v_ECI),1),sigma_v,1);
+    vy = normrnd(TLE.v_ECI(length(TLE.v_ECI),2),sigma_v,1);
+    vz = normrnd(TLE.v_ECI(length(TLE.v_ECI),3),sigma_v,1);
+    TLE_monte.v_ECI = [vx, vy, vz];
+    
+    % Propagate
+    [propagate_monte(i)] = propagateOrbit(1, 2, TLE_monte)
+    figure(i)
+    ground_track(propagate_monte(i).lat,propagate_monte(i).lon,opts,'Earth');
+end
+
+
+
+
+
 
