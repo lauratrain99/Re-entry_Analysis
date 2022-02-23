@@ -70,8 +70,6 @@ for i = 3:31
     totalPropagate.timeUTC = [totalPropagate.timeUTC; propagate.timeUTC];
 end
 
-% Get ground trajectory of TLEs
-[TLE.lat, TLE.lon, TLE.alt] = ground_trajectory(TLE.r_ECI, TLE.timeUTC);
 
 %% Full integration
 
@@ -110,6 +108,7 @@ final_integ2 = 4;
 % Radius of the orbit
 propagate1.r_norm = sqrt(propagate1.r_ECI(:,1).^2 + propagate1.r_ECI(:,2).^2 + propagate1.r_ECI(:,3).^2);
 propagate2.r_norm = sqrt(propagate2.r_ECI(:,1).^2 + propagate2.r_ECI(:,2).^2 + propagate2.r_ECI(:,3).^2);
+TLE.r_norm = sqrt(TLE.r_ECI(:,1).^2 + TLE.r_ECI(:,2).^2 + TLE.r_ECI(:,3).^2);
 
 % Radius of both orbits
 figure()
@@ -145,13 +144,16 @@ opts.Color = [140,21,21]/255;
 opts.LineWidth = 2.5;
 opts.LineStyle = '-';
 
-ground_track(propagate.lat,propagate.lon,opts,'Earth');
+% Get ground trajectory of TLEs
+[TLE.lat, TLE.lon, TLE.alt] = ground_trajectory(TLE.r_ECI, TLE.timeUTC);
+
+ground_track(propagate1.lat,propagate1.lon,opts,'Earth');
 hold on
 plot(TLE.lon(init_integ1),TLE.lat(init_integ1),'s','MarkerSize',10,...
     'MarkerEdgeColor','blue',...
     'MarkerFaceColor',[0.3010, 0.7450, 0.9330]);
 hold on
-plot(TLE.lon(final_integ2),TLE.lat(final_integ2),'s','MarkerSize',10,...
+plot(TLE.lon(final_integ1),TLE.lat(final_integ1),'s','MarkerSize',10,...
     'MarkerEdgeColor','red',...
     'MarkerFaceColor',[1 .6 .6]);
 hold off
@@ -162,22 +164,25 @@ legend('Propagation','Initial TLE','Final TLE')
 N = 3; %Number of tests
 sigma_r = 1; %std of r
 sigma_v = 1; %std of v
-TLE_monte.timeJulian = TLE.timeJulian(final_integ1):0.1:TLE.timeJulian(final_integ1)+1000;
-TLE_monte.Bc = TLE.Bc;
+
+last_TLE_index = 32;
+days_propagate = 0.1;
+TLE_monte.timeJulian = linspace(TLE.timeJulian(last_TLE_index), TLE.timeJulian(last_TLE_index) + days_propagate);
+TLE_monte.Bc = TLE.Bc(last_TLE_index);
 
 for i = 1:N
-    rx = normrnd(TLE.r_ECI(length(TLE.r_ECI),1),sigma_r,1);
-    ry = normrnd(TLE.r_ECI(length(TLE.r_ECI),2),sigma_r,1);
-    rz = normrnd(TLE.r_ECI(length(TLE.r_ECI),3),sigma_r,1);
+    rx = normrnd(TLE.r_ECI(last_TLE_index,1),sigma_r,1);
+    ry = normrnd(TLE.r_ECI(last_TLE_index,2),sigma_r,1);
+    rz = normrnd(TLE.r_ECI(last_TLE_index,3),sigma_r,1);
     TLE_monte.r_ECI = [rx, ry, rz];
 
-    vx = normrnd(TLE.v_ECI(length(TLE.v_ECI),1),sigma_v,1);
-    vy = normrnd(TLE.v_ECI(length(TLE.v_ECI),2),sigma_v,1);
-    vz = normrnd(TLE.v_ECI(length(TLE.v_ECI),3),sigma_v,1);
+    vx = normrnd(TLE.v_ECI(last_TLE_index,1),sigma_v,1);
+    vy = normrnd(TLE.v_ECI(last_TLE_index,2),sigma_v,1);
+    vz = normrnd(TLE.v_ECI(last_TLE_index,3),sigma_v,1);
     TLE_monte.v_ECI = [vx, vy, vz];
     
     % Propagate
-    [propagate_monte(i)] = propagateOrbit(1, 15, TLE_monte)
+    [propagate_monte(i)] = propagateDecay(TLE_monte.timeJulian(1), TLE_monte.timeJulian(end), TLE_monte);
     figure(i)
     ground_track(propagate_monte(i).lat,propagate_monte(i).lon,opts,'Earth');
 end
