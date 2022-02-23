@@ -10,7 +10,7 @@ function [propagate] = propagateDecay(initJulian, finalJulian, TLE)
     iniState = [r0 v0];
 
     % Propagate the orbit
-    options = odeset('RelTol',1e-8,'AbsTol',1e-8); 
+    options = odeset('Events',@hFinal, 'RelTol',1e-8,'AbsTol',1e-9);
     
     [t,y] = ode45(@dragDecay,linspace(t0, tf,1000), iniState, options, TLE);  
     

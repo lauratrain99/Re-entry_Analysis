@@ -8,7 +8,7 @@ function der = dragDyn(t, x, TLE)
     h = norm(r) - Re;
     
 %     rho  = (6*1e-13)*exp( - ( h - 200000 ) / 30000 );
-    rho  = (6*1e-13)*exp( - ( h - 120000 ) / 30500 ); 
+    [~, ~, ~, rho] = atmoscoesa2(h*1000);
 %     rho  = (6*1e-14)*exp( - ( h - 18000 ) / 4000 ); 
     
     vRel = (v - cross(wEarth',r));
