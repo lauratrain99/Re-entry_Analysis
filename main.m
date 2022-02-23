@@ -162,7 +162,7 @@ legend('Propagation','Initial TLE','Final TLE')
 N = 3; %Number of tests
 sigma_r = 1; %std of r
 sigma_v = 1; %std of v
-TLE_monte.timeJulian = TLE.timeJulian(final_integ):0.1:TLE.timeJulian(final_integ)+1000;
+TLE_monte.timeJulian = TLE.timeJulian(final_integ1):0.1:TLE.timeJulian(final_integ1)+1000;
 TLE_monte.Bc = TLE.Bc;
 
 for i = 1:N
@@ -177,13 +177,17 @@ for i = 1:N
     TLE_monte.v_ECI = [vx, vy, vz];
     
     % Propagate
-    [propagate_monte(i)] = propagateOrbit(1, 2, TLE_monte)
+    [propagate_monte(i)] = propagateOrbit(1, 15, TLE_monte)
     figure(i)
     ground_track(propagate_monte(i).lat,propagate_monte(i).lon,opts,'Earth');
 end
 
+%% Plot Landings
+landings = zeros(N,2);
+for j = 1:N
+[~,landing_index] =min(abs(propagate_monte(j).alt));
+landings(j,:) = [propagate_monte(j).lat(landing_index), propagate_monte(j).lon(landing_index)];
+end
 
-
-
-
-
+figure()
+ground_track(landings.lat,landings.lon,opts,'Earth');
