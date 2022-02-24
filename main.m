@@ -56,7 +56,7 @@ plot(TLE.timeUTC, TLE.theta,'r*')
 title("True anomaly [deg]",'FontSize',14)
 
 %% Full integration
-full_integ = 0;
+full_integ = 1;
 
 if full_integ == 1
     % TLE taken as initial and final conditions to propagate
@@ -183,8 +183,6 @@ if partial_integ == 1
     
 end
 
-
-
 %% Montecarlo Propagation
 
 % Propagate one day from the last TLE stopping when h < 0
@@ -237,7 +235,6 @@ for j = 1:N
 end
 hold off
 
-
 % Sugerencia de LT: correr 100 montecarlos y plotear lon vs lat de los
 % landing points (los landing points son siempre el último punto del vector
 % de la integración ya que le he puesto una condición de corte al
@@ -253,14 +250,19 @@ hold off
 if full_integ == 1
     total_time = [totalPropagate.timeUTC; propagate_nominal.timeUTC];
     total_alt = [totalPropagate.alt; propagate_nominal.alt];
-    mean = movmean(total_alt,10000);
+    mean1 = movmean(propagate_nominal.alt,500);
+    mean1(end-60:end) = propagate_nominal.alt(end-60:end);
     
     figure()
     plot(total_time, total_alt)
     hold on
-    plot(total_time, mean,'r')
+    plot(TLE.timeUTC(2:end), TLE.a(2:end) - 6378,'r')
+    hold on
+    plot(propagate_nominal.timeUTC, mean1,'r')
     ylabel("Altitude [km]",'FontSize',14)
     title("Orbit decay",'FontSize',14)
+    legend("Altitude propagation","Mean altitude","Mean altitude","LineWidth",14)
+    hold off
 
 end
 
