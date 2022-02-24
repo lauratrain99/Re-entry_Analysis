@@ -56,7 +56,7 @@ plot(TLE.timeUTC, TLE.theta)
 title("True anomaly [deg]")
 
 %% Full integration
-full_integ = 0;
+full_integ = 1;
 
 if full_integ == 1
     % TLE taken as initial and final conditions to propagate
@@ -64,13 +64,14 @@ if full_integ == 1
     totalPropagate.r_ECI = propagate.r_ECI;
     totalPropagate.v_ECI = propagate.v_ECI;
     totalPropagate.timeUTC = propagate.timeUTC;
-
+    totalPropagate.alt = propagate.alt;
     % Integrate the full domain
     for i = 3:31
         [propagate] = propagateOrbit(i, i+1, TLE);
         totalPropagate.r_ECI = [totalPropagate.r_ECI; propagate.r_ECI];
         totalPropagate.v_ECI = [totalPropagate.v_ECI; propagate.v_ECI];
         totalPropagate.timeUTC = [totalPropagate.timeUTC; propagate.timeUTC];
+        totalPropagate.alt = [totalPropagate.alt; propagate.alt];
     end
 
     % Compute radius of the propagation
@@ -236,6 +237,7 @@ for j = 1:N
 end
 hold off
 
+
 % Sugerencia de LT: correr 100 montecarlos y plotear lon vs lat de los
 % landing points (los landing points son siempre el último punto del vector
 % de la integración ya que le he puesto una condición de corte al
@@ -245,3 +247,22 @@ hold off
 % la elipse de dispersión y trazar la de sigma, dos sigma y tres sigma. El
 % centro de la elipse sería nuestro punto de caída estimado (no?) y
 % comentar cosas a partir de eso
+
+%% Plot total altitude decay
+
+
+if full_integ == 1
+    total_time = [totalPropagate.timeUTC; propagate_nominal.timeUTC];
+    total_alt = [totalPropagate.alt; propagate_nominal.alt];
+    mean = movmean(total_alt,10000);
+    
+    figure()
+    plot(total_time, total_alt)
+    hold on
+    plot(total_time, mean,'r')
+    ylabel("Altitude [km]",'FontSize',14)
+    title("Orbit decay",'FontSize',14)
+
+end
+
+
