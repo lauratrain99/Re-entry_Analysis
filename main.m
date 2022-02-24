@@ -32,31 +32,31 @@ TLE.theta = TLE.orb_elements(:,6);
 % plot orbital elements
 figure()
 subplot(2,3,1)
-plot(TLE.timeUTC, TLE.a)
-title("Semi-major axis [km]")
+plot(TLE.timeUTC, TLE.a,'b-o')
+title("Semi-major axis [km]",'FontSize',14)
 
 subplot(2,3,2)
-plot(TLE.timeUTC, TLE.e)
-title("Eccentricity")
+plot(TLE.timeUTC, TLE.e,'b-o')
+title("Eccentricity",'FontSize',14)
 
 subplot(2,3,3)
-plot(TLE.timeUTC, TLE.inc)
-title("Inclination [deg]")
+plot(TLE.timeUTC, TLE.inc,'b-o')
+title("Inclination [deg]",'FontSize',14)
 
 subplot(2,3,4)
-plot(TLE.timeUTC, TLE.raan)
-title("RAAN [km]")
+plot(TLE.timeUTC, TLE.raan,'b-o')
+title("RAAN [km]",'FontSize',14)
 
 subplot(2,3,5)
-plot(TLE.timeUTC, TLE.w)
-title("Arg. of perigee [deg]")
+plot(TLE.timeUTC, TLE.w,'b-o')
+title("Arg. of perigee [deg]",'FontSize',14)
 
 subplot(2,3,6)
-plot(TLE.timeUTC, TLE.theta)
-title("True anomaly [deg]")
+plot(TLE.timeUTC, TLE.theta,'r*')
+title("True anomaly [deg]",'FontSize',14)
 
 %% Full integration
-full_integ = 1;
+full_integ = 0;
 
 if full_integ == 1
     % TLE taken as initial and final conditions to propagate
@@ -242,14 +242,13 @@ hold off
 % landing points (los landing points son siempre el último punto del vector
 % de la integración ya que le he puesto una condición de corte al
 % integrador cuando la altura es casi 0 (con 0 explota por cositas de la
-% atmósfera pero espero que con 10 metros te valga). Una vez tengas los 100
+% atmósfera pero espero que con 10 metros te valga)). Una vez tengas los 100
 % puntos ploteados puede estar muy chulo sacar los autovectores para hacer
 % la elipse de dispersión y trazar la de sigma, dos sigma y tres sigma. El
 % centro de la elipse sería nuestro punto de caída estimado (no?) y
 % comentar cosas a partir de eso
 
 %% Plot total altitude decay
-
 
 if full_integ == 1
     total_time = [totalPropagate.timeUTC; propagate_nominal.timeUTC];
