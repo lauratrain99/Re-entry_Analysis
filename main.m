@@ -204,7 +204,7 @@ ground_track(propagate_nominal.lat,propagate_nominal.lon,opts,'Earth');
 hold on;
 
 % Set up MC parameters
-N = 3; %Number of tests
+N = 1000; %Number of tests
 sigma_r = 1; %std of r
 sigma_v = 0.5; %std of v
 
@@ -265,5 +265,17 @@ if full_integ == 1
     hold off
 
 end
+
+%% Plot Dispersion Ellipses
+
+for h = 1:N
+    lats(h) = propagate_monte(h).lon(end);
+    lons(h) = propagate_monte(h).lat(end);
+end
+
+meanLatLon = [propagate_nominal.lat(end), propagate_nominal.lon(end)];
+ellipse1 = [std(lats),std(lons)];
+ellipse2 = 2*[std(lats),std(lons)];
+ellipse3 = 3*[std(lats),std(lons)];
 
 
